@@ -44,13 +44,24 @@ WeatherButton.prototype = {
         this._weatherButton = new St.BoxLayout({ style_class: 'weather-status'});
         this._weatherIconBox = new St.BoxLayout({ style_class: 'weather-status-icon'});
 
-        let weatherIcon = new St.Icon({ icon_type: St.IconType.FULLCOLOR,
-                                        icon_size: Main.panel.button.get_child().height - 2,
-                                        icon_name: 'view-refresh-symbolic',
-                                        style_class: 'weather-status-icon' });
+        let weatherIcon = new St.Icon({
+            icon_type: St.IconType.FULLCOLOR,
+            icon_size: 22,
+            icon_name: 'view-refresh-symbolic',
+            style_class: 'weather-status-icon'
+        });
 
         this._weatherIconBox.add_actor(weatherIcon);
         this._weatherButton.add_actor(this._weatherIconBox);
+
+        this.actor = new St.Bin({
+            reactive: true,
+            can_focus: true,
+            x_fill: true,
+            y_fill: false,
+            track_hover: true 
+        });
+
         this.actor.set_child(this._weatherButton);
 
         Main.panel._centerBox.add(this.actor, { y_fill: true });
@@ -65,7 +76,6 @@ WeatherButton.prototype = {
         });
     },
 
-
     // retrieve the weather data using SOAP
     _loadJSON: function(url, callback) {
         here = this;
@@ -77,7 +87,6 @@ WeatherButton.prototype = {
         });
     },
 
-    
     // retrieve a weather icon image
     _getIconImage: function(iconpath) {
          let icon_file = this._metadata.path + "/icons/" + 
@@ -88,13 +97,12 @@ WeatherButton.prototype = {
          return St.TextureCache.get_default().load_uri_sync(1, icon_uri, 64, 64);
     },
 
-
     // get the weather information every WEATHERDATA_UPDATE_INTERVAL 
     // and update weather status on Panel
     _getWeatherInfo: function() {
         this._loadJSON(WEATHERDATA_URL, function(weatherinfo) {
             this._weatherInfo = weatherinfo;
-
+            global.log("WEATHER INFO" + weatherinfo.current_condition);
             let curr = weatherinfo.current_condition;
             let desc = curr[0].weatherDesc;
             let comment = desc[0].value;
@@ -113,7 +121,6 @@ WeatherButton.prototype = {
         Mainloop.timeout_add_seconds(WEATHERDATA_UPDATE_INTERVAL, 
                                      Lang.bind(this, this. _getWeatherInfo));
     },
-
 
     _displayUI: function() {
         if (this._weatherInfo == null) return;
@@ -275,13 +282,23 @@ WeatherButton.prototype = {
     }
 };
 
+/* new API changes */
+let weatherApplet;
+
+function enable(metadata) {
+    /* Do nothing for now */
+}
+
+function disable() {
+    weatherApplet.destroy();
+}
+/* /new API changes */
 
 function init(metadata) {
-
     if (WEATHERDATA_KEY && ZIPCODE) {
-        new WeatherButton(metadata);
+        weatherApplet = new WeatherButton(metadata);
+        global.log("meta data" + metadata);
     } else {
        global.log("ERROR: Weather extension. Missing WEATHERDATA_KEY or ZIPCODE.");
     }
-
 }
