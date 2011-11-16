@@ -1,0 +1,93 @@
+                           README
+                         ==========  
+
+License:
+--------
+
+Copyright (C) 2011  Finnbarr P. Murphy 
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of VERSION 2 of the GNU General Public 
+License as published by the Free Software Foundation provided
+that the above copyright notice is included.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+Go to http://www.gnu.org/licenses/gpl-2.0.html to get a copy
+of the license.
+
+
+Installation:
+-------------
+
+Copy the tarball to $HOME/.local/share/gnome-shell/extensions
+and unpack it.  A directory called weather@fpmurphy.com
+should be created. 
+
+Restart your GNOME shell (Alt-F2 r is one way) and you should
+see an extra button on your panel.
+
+If the extension does not install, check the version number in
+metadate.json.  You may have to change it to work with your
+particular version of the GNOME Shell. If this does not fix 
+the problem, use Looking Glass (Alt-F2 lg) to see what the
+error message is.
+
+This extension accesses weather data from World Weather Online
+for US zipcodes.
+
+        http://www.worldweatheronline.com/
+
+To use this extension, you must sign up and get a free API key
+from World Weather Online.  Sign up is simple and painless.
+Once you have the key, you must edit extension.js and add the
+API key as the WEATHERDATA_KEY. Example:
+
+   const WEATHERDATA_KEY = '8007f71f8d2a424k112405';
+
+You also need to change the ZIPCODE to the specific USA zipcode
+that you want to display the weather for. Example:
+
+   const ZIPCODE = '00802';
+
+This version does not support localized message strings. A
+future version will do so.
+
+
+Version:
+--------
+
+V1.0   5/28/2011    Initial released version.
+
+V1.1   6/01/2011    Added support for imperial or metric measurement
+                    units. Set MUNITS = 0 for imperial, MUNITS > 0
+                    for metric units. 
+
+
+Notes:
+------
+
+This extension is for US zipcodes and displays information in a
+mix of SI and US measurements. This was just my personal
+preference.  You can easily modify the extension to display the
+data in your particular measurement system or for your particular
+city and country.  
+
+A future version will probably support city/country as well as 
+zipcodes and provide a mechanism for switching between inperial 
+and SI units.
+
+
+Misc:
+-----
+
+The latest version of my GNOME extensions can always be found at: 
+
+     http://fpmurphy.com/gnome-shell-extensions
+
+I discuss the GNOME Shell and extensions on my blog at:
+
+     http://blog.fpmurphy.com
+

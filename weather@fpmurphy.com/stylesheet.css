@@ -1,0 +1,95 @@
+.weather-icon {
+    padding-right: 5px;
+}
+
+.weather-status-icon {
+    height: 20px;
+    width: 20px;
+    padding: 0px;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 2px;
+}
+
+.weather-status-text {
+    padding: 1px 0 0 5px;
+    
+}
+
+.weather-current-summarybox {
+    padding: 0px;
+}
+
+.weather-location {
+    padding-left: 5px;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.weather-current-summary {
+    padding-left: 10px;
+    font-size: 2em;
+}
+
+.weather-current-databox-left {
+    padding: 5px 5px 5px 10px;
+}
+
+.weather-current-databox-right {
+    padding: 5px;
+}
+
+.weather-current-icon {
+    height: 64px;
+    width: 64px;
+    padding: 10px 0 10px 0;
+}
+
+.weather-current-box {
+    padding: 0 0 0 10px;
+}
+
+.weather-current-databox-captions {
+    text-align: right;
+    padding-right: 5px;
+    font-size: 14px;
+    color: #999999;
+}
+
+.weather-forecast-box {
+    padding: 0 10px;
+}
+
+.weather-forecast-icon {
+    padding: 0px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    border-radius: 2px;
+}
+
+.weather-forecast-databox {
+    padding: 0 10px 0 5px;
+}
+
+.weather-forecast-day {
+    color: #999999; 
+    font-size: 70%;
+    font-weight: bold;
+}
+
+
+.weather-forecast-temperature {
+    font-size: 80%;
+}
+
+.weather-box {
+    margin: 0px;
+}
+
+.weather-forecast {
+    margin: 0px;
+    padding: 0px;
+}
+
+
+
