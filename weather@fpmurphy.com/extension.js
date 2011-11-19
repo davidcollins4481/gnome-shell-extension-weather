@@ -22,7 +22,7 @@ const ZIPCODE = '44708';          // See the README  Enclose in single quotes
 const WEATHERDATA_KEY = '2a647492a1015425110709';  // See the README  Enclose in single quotes
 const WEATHERDATA_URL = 'http://free.worldweatheronline.com/feed/weather.ashx?q=' 
                         + ZIPCODE + '&format=json&num_of_days=5&key=' + WEATHERDATA_KEY;
-const WEATHERDATA_UPDATE_INTERVAL = 600;     
+const WEATHERDATA_UPDATE_INTERVAL = 600;
 
 
 function WeatherButton() {
@@ -93,8 +93,8 @@ WeatherButton.prototype = {
     // and update weather status on Panel
     _getWeatherInfo: function() {
         this._loadJSON(WEATHERDATA_URL, function(weatherinfo) {
+            global.log("Refreshing weather info");
             this._weatherInfo = weatherinfo;
-            global.log("WEATHER INFO" + weatherinfo.current_condition);
             let curr = weatherinfo.current_condition;
             let desc = curr[0].weatherDesc;
             let comment = desc[0].value;
@@ -107,17 +107,41 @@ WeatherButton.prototype = {
             this._weatherButton.add_actor(this._weatherIconBox);
             this._weatherButton.add_actor(weatherInfo);
             this.actor.add_actor(this._weatherButton);
-            this.actor.connect('button-press-event', Lang.bind(this, this._displayUI));
+            this.actor.connect('button-press-event', Lang.bind(this, this._clickHandler));
         });
 
         Mainloop.timeout_add_seconds(WEATHERDATA_UPDATE_INTERVAL, 
                                      Lang.bind(this, this. _getWeatherInfo));
     },
 
-    _displayUI: function() {
+    _clickHandler: function(container, event) {
+        var left_click = event.get_button() == 3;
+        
+        if (left_click) {
+            this._displayContextMenu();
+        } else {
+            this._displayUI();
+        }
+    },
+    
+    _displayContextMenu: function() {
+        global.log("context click");
+
+        // destroy any previous components 
+        if (this._currentWeather != null) {
+            this._currentWeather.get_children().forEach(function (actor) { actor.destroy(); });
+        }
+        if (this._futureWeather != null) {
+            this._futureWeather.get_children().forEach(function (actor) { actor.destroy(); });
+        }
+
+        
+    },
+
+    _displayUI: function(container, event) {
         if (this._weatherInfo == null) return;
 
-        let weather = this._weatherInfo;          
+        let weather = this._weatherInfo;
         let request = weather.request;
         let curr = weather.current_condition;
         let weathers = weather.weather;
