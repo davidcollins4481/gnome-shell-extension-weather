@@ -54,15 +54,7 @@ WeatherButton.prototype = {
         this._weatherIconBox.add_actor(weatherIcon);
         this._weatherButton.add_actor(this._weatherIconBox);
 
-        this.actor = new St.Bin({
-            reactive: true,
-            can_focus: true,
-            x_fill: true,
-            y_fill: false,
-            track_hover: true 
-        });
-
-        this.actor.set_child(this._weatherButton);
+        this.actor.add_actor(this._weatherButton);
 
         Main.panel._centerBox.add(this.actor, { y_fill: true });
         Main.panel._menus.addMenu(this.menu);
@@ -114,7 +106,7 @@ WeatherButton.prototype = {
             this._weatherIconBox.add_actor(weatherIcon);
             this._weatherButton.add_actor(this._weatherIconBox);
             this._weatherButton.add_actor(weatherInfo);
-            this.actor.set_child(this._weatherButton);
+            this.actor.add_actor(this._weatherButton);
             this.actor.connect('button-press-event', Lang.bind(this, this._displayUI));
         });
 
