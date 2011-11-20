@@ -9,6 +9,7 @@ const St = imports.gi.St;
 const Soup = imports.gi.Soup;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
 
 const Gettext = imports.gettext.domain('gnome-shell');
 const _ = Gettext.gettext;
@@ -123,19 +124,36 @@ WeatherButton.prototype = {
             this._displayUI();
         }
     },
-    
-    _displayContextMenu: function() {
-        global.log("context click");
 
+    _clearAll: function() {
         // destroy any previous components 
         if (this._currentWeather != null) {
             this._currentWeather.get_children().forEach(function (actor) { actor.destroy(); });
         }
+
         if (this._futureWeather != null) {
             this._futureWeather.get_children().forEach(function (actor) { actor.destroy(); });
         }
 
+        if (this._preferencesItem != null) {
+            this._preferencesItem.get_children().forEach(function (actor) { actor.destroy(); });
+        }
+
+        if (this._aboutItem != null) {
+            this._aboutItem.get_children().forEach(function (actor) { actor.destroy(); });
+        }
+    },
+
+    _displayContextMenu: function() {
+        global.log("context click");
+
+        this._clearAll();
+
+        //this._preferencesItem = new PopupMenu.PopupMenuItem(_('Preferences'));
+        //this._aboutItem = new PopupMenu.PopupMenuItem(_('About'));
         
+        //this.menu.addMenuItem(this._preferencesItem);
+        //this.menu.addMenuItem(this._aboutItem);
     },
 
     _displayUI: function(container, event) {
@@ -163,13 +181,8 @@ WeatherButton.prototype = {
         let currPercipitation = new St.Label({ text: (MUNITS > 0 ? curr[0].precipMM + ' mm' :  (curr[0].precipMM * MM2INCH).toFixed(2) + '"') });
 
         // destroy any previous components 
-        if (this._currentWeather != null) {
-            this._currentWeather.get_children().forEach(function (actor) { actor.destroy(); });
-        }
-        if (this._futureWeather != null) {
-            this._futureWeather.get_children().forEach(function (actor) { actor.destroy(); });
-        }
-            
+        this._clearAll();
+
         let mainBox = new St.BoxLayout({ vertical: true,
                                          style_class: 'weather-box' });
         this._currentWeather = new St.BoxLayout({ style_class: 'weather-current-box'});
