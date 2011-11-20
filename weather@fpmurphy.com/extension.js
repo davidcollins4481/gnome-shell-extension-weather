@@ -136,24 +136,22 @@ WeatherButton.prototype = {
         }
 
         if (this._preferencesItem != null) {
-            this._preferencesItem.get_children().forEach(function (actor) { actor.destroy(); });
+            this._preferencesItem.destroy();
         }
 
         if (this._aboutItem != null) {
-            this._aboutItem.get_children().forEach(function (actor) { actor.destroy(); });
+            this._aboutItem.destroy();
         }
     },
 
     _displayContextMenu: function() {
-        global.log("context click");
-
         this._clearAll();
 
-        //this._preferencesItem = new PopupMenu.PopupMenuItem(_('Preferences'));
-        //this._aboutItem = new PopupMenu.PopupMenuItem(_('About'));
-        
-        //this.menu.addMenuItem(this._preferencesItem);
-        //this.menu.addMenuItem(this._aboutItem);
+        this._preferencesItem = new PopupMenu.PopupMenuItem(_('Preferences'));
+        this._aboutItem = new PopupMenu.PopupMenuItem(_('About'));
+
+        this.menu.addMenuItem(this._preferencesItem);
+        this.menu.addMenuItem(this._aboutItem);
     },
 
     _displayUI: function(container, event) {
