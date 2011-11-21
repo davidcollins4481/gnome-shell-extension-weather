@@ -142,16 +142,28 @@ WeatherButton.prototype = {
         if (this._aboutItem != null) {
             this._aboutItem.destroy();
         }
+        
+        if (this._refreshItem != null) {
+            this._refreshItem.destroy();
+        }
     },
 
     _displayContextMenu: function() {
         this._clearAll();
 
         this._preferencesItem = new PopupMenu.PopupMenuItem(_('Preferences'));
+        this._refreshItem = new PopupMenu.PopupMenuItem(_('Refresh'));
         this._aboutItem = new PopupMenu.PopupMenuItem(_('About'));
 
         this.menu.addMenuItem(this._preferencesItem);
+        this.menu.addMenuItem(this._refreshItem);
         this.menu.addMenuItem(this._aboutItem);
+        
+        this._refreshItem.connect('activate', Lang.bind(this, this._refreshWeather));
+    },
+
+    _refreshWeather: function() {
+        this._getWeatherInfo();
     },
 
     _displayUI: function(container, event) {
@@ -273,7 +285,6 @@ WeatherButton.prototype = {
         }
     },
 
-
     // UTC time provided by weather data source. Convert to local time.
     _adjustTime: function(dateStr, timeStr) {
 
@@ -288,7 +299,6 @@ WeatherButton.prototype = {
         
         return newDate.toTimeString().substring(0,5);    
     },
-
 
      // get day-of-week for a date
     _getDate: function(index, dateStr) { 
