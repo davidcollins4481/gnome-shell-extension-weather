@@ -14,15 +14,16 @@ const PopupMenu = imports.ui.popupMenu;
 const Gettext = imports.gettext.domain('gnome-shell');
 const _ = Gettext.gettext;
 
+const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.weather';
+const SETTINGS_KEY = 'zipcode';
+
 const KPH2MPH = 0.62137;
 const MM2INCH = 0.03937;
 
 // configuration 
 const MUNITS = 0;              // See the README  0 - Imperial units, >0 - SI (Metric) units
-const ZIPCODE = '44708';          // See the README  Enclose in single quotes
 const WEATHERDATA_KEY = '2a647492a1015425110709';  // See the README  Enclose in single quotes
-const WEATHERDATA_URL = 'http://free.worldweatheronline.com/feed/weather.ashx?q=' 
-                        + ZIPCODE + '&format=json&num_of_days=5&key=' + WEATHERDATA_KEY;
+
 const WEATHERDATA_UPDATE_INTERVAL = 600;
 
 
@@ -41,6 +42,10 @@ WeatherButton.prototype = {
     _init: function(metadata) {
 
         PanelMenu.Button.prototype._init.call(this, 0.5);
+
+        // initialize settings
+        this._settings = new Gio.Settings({ schema: SETTINGS_SCHEMA });
+        this._changedId = this._settings.connect('changed::'+SETTINGS_KEY, Lang.bind(this, this._refreshWeather));
 
         this._weatherButton = new St.BoxLayout({ style_class: 'weather-status'});
         this._weatherIconBox = new St.BoxLayout({ style_class: 'weather-status-icon'});
@@ -63,7 +68,7 @@ WeatherButton.prototype = {
         this._metadata = metadata;
         this._getWeatherInfo;
 
-        here = this;
+        let here = this;
         Mainloop.timeout_add(2000, function() {
             here._getWeatherInfo();
         });
@@ -90,10 +95,21 @@ WeatherButton.prototype = {
          return St.TextureCache.get_default().load_uri_sync(1, icon_uri, 64, 64);
     },
 
+    _getZipCode: function() {
+        let zipcode = this._settings.get_string(SETTINGS_KEY);
+        return zipcode || '44708';
+    },
+
+    _getWeatherUrl: function() {
+        let url = 'http://free.worldweatheronline.com/feed/weather.ashx?q=' 
+                        + this._getZipCode() + '&format=json&num_of_days=5&key=' + WEATHERDATA_KEY;
+        return url;
+    },
+
     // get the weather information every WEATHERDATA_UPDATE_INTERVAL 
     // and update weather status on Panel
     _getWeatherInfo: function() {
-        this._loadJSON(WEATHERDATA_URL, function(weatherinfo) {
+        this._loadJSON(this._getWeatherUrl(), function(weatherinfo) {
             global.log("Refreshing weather info");
             this._weatherInfo = weatherinfo;
             let curr = weatherinfo.current_condition;
@@ -117,7 +133,7 @@ WeatherButton.prototype = {
 
     _clickHandler: function(container, event) {
         var left_click = event.get_button() == 3;
-        
+
         if (left_click) {
             this._displayContextMenu();
         } else {
@@ -139,27 +155,69 @@ WeatherButton.prototype = {
             this._preferencesItem.destroy();
         }
 
-        if (this._aboutItem != null) {
-            this._aboutItem.destroy();
-        }
-        
         if (this._refreshItem != null) {
             this._refreshItem.destroy();
+        }
+        
+        if (this._promptBox != null) {
+            this._promptBox.destroy();
         }
     },
 
     _displayContextMenu: function() {
         this._clearAll();
 
-        this._preferencesItem = new PopupMenu.PopupMenuItem(_('Preferences'));
+        this._preferencesItem = new PopupMenu.PopupSubMenuMenuItem(_("Preferences"));
         this._refreshItem = new PopupMenu.PopupMenuItem(_('Refresh'));
-        this._aboutItem = new PopupMenu.PopupMenuItem(_('About'));
-
-        this.menu.addMenuItem(this._preferencesItem);
-        this.menu.addMenuItem(this._refreshItem);
-        this.menu.addMenuItem(this._aboutItem);
         
         this._refreshItem.connect('activate', Lang.bind(this, this._refreshWeather));
+        
+        /* preferences */
+        this._promptBox = new St.BoxLayout({ 
+            style_class: 'weather-info-prompt-box',
+            vertical: true
+        });
+
+        this._promptEntry = new St.Entry({ 
+            style_class: 'weather-text-entry',
+           can_focus: true
+        });
+
+        let btn = new St.Button({ style_class: 'zip-btn' });
+
+        btn.connect('clicked', Lang.bind(this, function() {
+            let zip = this._promptEntry.get_text();
+            global.log("zipcode: " + zip);
+            this._settings.set_string(SETTINGS_KEY, zip);
+            
+        }));
+
+        this._promptBox.add(this._promptEntry, { 
+            expand: false,
+            x_fill: false,
+            y_fill: false,
+            x_align: St.Align.START
+        });
+
+        this._promptBox.add(btn);
+
+        this._promptMenuItem = new PopupMenu.PopupMenuItem(_(''));
+        this._promptMenuItem.addActor(this._promptBox);
+
+        this._preferencesItem.menu.addMenuItem(this._promptMenuItem);
+
+        // this is a bit hackish I guess, but it works. Disconnect
+        // all menu item events so entries can be used
+        this._promptMenuItem.disconnect(this._promptMenuItem._activateId);
+        this._promptMenuItem.disconnect(this._promptMenuItem._activeChangeId);
+        this._promptMenuItem.disconnect(this._promptMenuItem._sensitiveChangeId);
+
+        /* /preferences */
+
+        this.menu.addMenuItem(this._refreshItem);
+        this.menu.addMenuItem(this._preferencesItem);
+
+        //let separator = new PopupMenu.PopupSeparatorMenuItem();
     },
 
     _refreshWeather: function() {
@@ -327,12 +385,12 @@ function enable(metadata) {
 }
 
 function disable() {
-    weatherApplet.destroy();
+    //weatherApplet.destroy();
 }
 /* /new API changes */
 
 function init(metadata) {
-    if (WEATHERDATA_KEY && ZIPCODE) {
+    if (WEATHERDATA_KEY) {
         weatherApplet = new WeatherButton(metadata);
         global.log("meta data" + metadata);
     } else {

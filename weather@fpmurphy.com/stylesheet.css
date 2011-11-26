@@ -91,5 +91,35 @@
     padding: 0px;
 }
 
+.weather-text-entry {
+    padding: 4px;
+    border-radius: 4px;
+    border: 2px solid #666;
+    color: black;
+    background-color: white;
+    caret-color: black;
+    caret-size: 1px;
+    width: 4em;
+}
 
+.weather-info-prompt-box {
+    padding-bottom: 32px;
+}
 
+.zip-btn {
+    width: 18px;
+    height: 12px;
+    background-image: url("calendar-arrow-left.svg");
+    border-radius: 4px;
+}
+
+.zip-btn:rtl {
+    background-image: url("calendar-arrow-right.svg");
+}
+
+.zip-btn:hover {
+    background-color: #999999;
+}
+.zip-btn:active {
+    background-color: #aaaaaa;
+}

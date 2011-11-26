@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.weather" path="/org/gnome/shell/extensions/weather/">
+        <key name="zipcode" type="s">
+            <default>''</default>
+            <summary>US Zipcde for weather information</summary>
+            <description>US Zipcde for weather information</description>
+        </key>
+    </schema>
+</schemalist>
