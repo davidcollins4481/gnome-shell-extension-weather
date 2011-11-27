@@ -81,7 +81,7 @@ WeatherButton.prototype = {
         let message = Soup.Message.new('GET', url);
         session.queue_message(message, function(session, message) {
             jObj = JSON.parse(message.response_body.data);
-            callback.call(here, jObj['data']);
+            callback.call(here, jObj);
         });
     },
 
@@ -96,8 +96,8 @@ WeatherButton.prototype = {
     },
 
     _getZipCode: function() {
-        let zipcode = this._settings.get_string(SETTINGS_KEY);
-        return zipcode || '44708';
+        let zipcode = this._transientZip || this._settings.get_string(SETTINGS_KEY);
+        return zipcode;
     },
 
     _getWeatherUrl: function() {
@@ -108,23 +108,61 @@ WeatherButton.prototype = {
 
     // get the weather information every WEATHERDATA_UPDATE_INTERVAL 
     // and update weather status on Panel
-    _getWeatherInfo: function() {
-        this._loadJSON(this._getWeatherUrl(), function(weatherinfo) {
-            global.log("Refreshing weather info");
+    _getWeatherInfo: function(successCb, errorCb) {
+        this._loadJSON(this._getWeatherUrl(), function(data) {
+            weatherinfo = data['data'];
+            
             this._weatherInfo = weatherinfo;
-            let curr = weatherinfo.current_condition;
-            let desc = curr[0].weatherDesc;
-            let comment = desc[0].value;
-            let weatherIcon = this._getIconImage(curr[0].weatherIconUrl);
-            let weatherInfo = new St.Label({text: (MUNITS > 0 ? curr[0].temp_C + 'C' : curr[0].temp_F + 'F'),
-                                            style_class: 'weather-status-text' });
+            if (weatherinfo["error"]) {
+                var errors = weatherinfo["error"];
+                this._clearAll();
 
-            this._weatherButton.get_children().forEach(function (actor) { actor.destroy(); });
-            this._weatherIconBox.add_actor(weatherIcon);
-            this._weatherButton.add_actor(this._weatherIconBox);
-            this._weatherButton.add_actor(weatherInfo);
-            this.actor.add_actor(this._weatherButton);
-            this.actor.connect('button-press-event', Lang.bind(this, this._clickHandler));
+                this._errorBox = new St.BoxLayout({ 
+                    vertical: true,
+                    style_class: 'error-box'
+                });
+
+                let errorInfo = new St.Label({
+                    text: errors[0].msg,
+                    style_class: 'error-status-text'
+                });
+
+                let loadIcon = new St.Icon({
+                    icon_type: St.IconType.FULLCOLOR,
+                    icon_size: 22,
+                    icon_name: 'view-refresh-symbolic',
+                    style_class: 'error-status-icon'
+                });
+
+                this._weatherButton.get_children().forEach(function (actor) { actor.destroy(); });
+                this._weatherIconBox.add_actor(loadIcon);
+                this._weatherButton.add_actor(this._weatherIconBox);
+
+                this._errorBox.add_actor(errorInfo);
+                this.menu.addActor(this._errorBox);
+
+                errorCb && errorCb(error[0].message);
+            } else {
+                let curr = weatherinfo.current_condition;
+                let desc = curr[0].weatherDesc;
+                let comment = desc[0].value;
+                let weatherIcon = this._getIconImage(curr[0].weatherIconUrl);
+                let weatherInfo = new St.Label({text: (MUNITS > 0 ? curr[0].temp_C + 'C' : curr[0].temp_F + 'F'),
+                                                style_class: 'weather-status-text' });
+
+                this._weatherButton.get_children().forEach(function (actor) { actor.destroy(); });
+                this._weatherIconBox.add_actor(weatherIcon);
+                this._weatherButton.add_actor(this._weatherIconBox);
+                this._weatherButton.add_actor(weatherInfo);
+                this.actor.add_actor(this._weatherButton);
+
+                if (this._weatherRetrieveId) {
+                    this.actor.disconnect(this._weatherRetrieveId);
+                }
+
+                successCb && successCb();
+                this._weatherRetrieveId = this.actor.connect('button-press-event', Lang.bind(this, this._clickHandler));
+            }
         });
 
         Mainloop.timeout_add_seconds(WEATHERDATA_UPDATE_INTERVAL, 
@@ -132,9 +170,9 @@ WeatherButton.prototype = {
     },
 
     _clickHandler: function(container, event) {
-        var left_click = event.get_button() == 3;
+        var right_click = event.get_button() == 3;
 
-        if (left_click) {
+        if (right_click) {
             this._displayContextMenu();
         } else {
             this._displayUI();
@@ -162,6 +200,10 @@ WeatherButton.prototype = {
         if (this._promptBox != null) {
             this._promptBox.destroy();
         }
+
+        if (this._errorBox != null) {
+            this._errorBox.destroy();
+        }
     },
 
     _displayContextMenu: function() {
@@ -180,16 +222,31 @@ WeatherButton.prototype = {
 
         this._promptEntry = new St.Entry({ 
             style_class: 'weather-text-entry',
-           can_focus: true
+            hint_text: _("Zipcode"),
+            can_focus: true
         });
 
-        let btn = new St.Button({ style_class: 'zip-btn' });
+        let btn = new St.Button({
+            style_class: 'zip-btn',
+            label: 'Set'
+        });
+
+        var self = this;
 
         btn.connect('clicked', Lang.bind(this, function() {
             let zip = this._promptEntry.get_text();
-            global.log("zipcode: " + zip);
-            this._settings.set_string(SETTINGS_KEY, zip);
+
+            var successCb = function() {
+                self._settings.set_string(SETTINGS_KEY, zip);
+                self._transientZip = null;
+            };
             
+            var errorCb = function(msg) {
+                self._transientZip = null;
+            };
+
+            self._transientZip = zip;
+            self._getWeatherInfo(successCb, errorCb);
         }));
 
         this._promptBox.add(this._promptEntry, { 
