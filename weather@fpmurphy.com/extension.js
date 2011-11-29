@@ -209,7 +209,7 @@ WeatherButton.prototype = {
     _displayContextMenu: function() {
         this._clearAll();
 
-        this._preferencesItem = new PopupMenu.PopupSubMenuMenuItem(_("Preferences"));
+        this._preferencesItem = new PopupMenu.PopupSubMenuMenuItem(_("Preferences"), { style_class: 'preferences-submenu' });
         this._refreshItem = new PopupMenu.PopupMenuItem(_('Refresh'));
         
         this._refreshItem.connect('activate', Lang.bind(this, this._refreshWeather));
@@ -217,18 +217,17 @@ WeatherButton.prototype = {
         /* preferences */
         this._promptBox = new St.BoxLayout({ 
             style_class: 'weather-info-prompt-box',
-            vertical: true
+            vertical: false
         });
 
         this._promptEntry = new St.Entry({ 
             style_class: 'weather-text-entry',
-            hint_text: _("Zipcode"),
             can_focus: true
         });
 
         let btn = new St.Button({
             style_class: 'zip-btn',
-            label: 'Set'
+            label: 'Set ZIP Code'
         });
 
         var self = this;
@@ -250,10 +249,10 @@ WeatherButton.prototype = {
         }));
 
         this._promptBox.add(this._promptEntry, { 
-            expand: false,
+            expand: true,
             x_fill: false,
             y_fill: false,
-            x_align: St.Align.START
+            x_align: 1
         });
 
         this._promptBox.add(btn);
@@ -273,8 +272,6 @@ WeatherButton.prototype = {
 
         this.menu.addMenuItem(this._refreshItem);
         this.menu.addMenuItem(this._preferencesItem);
-
-        //let separator = new PopupMenu.PopupSeparatorMenuItem();
     },
 
     _refreshWeather: function() {

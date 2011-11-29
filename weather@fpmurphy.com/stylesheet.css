@@ -97,25 +97,26 @@
     padding: 4px;
     border-radius: 4px;
     border: 2px solid #666;
-    color: black;
+    color: rgb(128, 128, 128);
     background-color: white;
     caret-color: black;
     caret-size: 1px;
-    width: 4em;
-    float: left;
+    width: 50px;
+    text-align: left;
 }
 
 .weather-info-prompt-box {
-    padding-bottom: 32px;
+   /* padding-right: 50px;*/
+    width: auto;
+    text-align: left;
 }
 
 .zip-btn {
-    width: 18px;
+    width: 100px;
     height: auto;
     background-image: url("calendar-arrow-left.svg");
     border-radius: 4px;
     border: 1px solid #fff;
-    float: right;
 }
 
 .zip-btn:rtl {
