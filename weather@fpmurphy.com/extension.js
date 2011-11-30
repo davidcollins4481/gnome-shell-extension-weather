@@ -114,7 +114,7 @@ WeatherButton.prototype = {
             
             this._weatherInfo = weatherinfo;
             if (weatherinfo["error"]) {
-                var errors = weatherinfo["error"];
+                let errors = weatherinfo["error"];
                 this._clearAll();
 
                 this._errorBox = new St.BoxLayout({ 
@@ -170,7 +170,7 @@ WeatherButton.prototype = {
     },
 
     _clickHandler: function(container, event) {
-        var right_click = event.get_button() == 3;
+        let right_click = event.get_button() == 3;
 
         if (right_click) {
             this._displayContextMenu();
@@ -230,17 +230,17 @@ WeatherButton.prototype = {
             label: 'Set ZIP Code'
         });
 
-        var self = this;
+        let self = this;
 
         btn.connect('clicked', Lang.bind(this, function() {
             let zip = this._promptEntry.get_text();
 
-            var successCb = function() {
+            let successCb = function() {
                 self._settings.set_string(SETTINGS_KEY, zip);
                 self._transientZip = null;
             };
             
-            var errorCb = function(msg) {
+            let errorCb = function(msg) {
                 self._transientZip = null;
             };
 
