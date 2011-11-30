@@ -76,11 +76,11 @@ WeatherButton.prototype = {
 
     // retrieve the weather data using SOAP
     _loadJSON: function(url, callback) {
-        here = this;
+        let here = this;
         let session = new Soup.SessionAsync();
         let message = Soup.Message.new('GET', url);
         session.queue_message(message, function(session, message) {
-            jObj = JSON.parse(message.response_body.data);
+            let jObj = JSON.parse(message.response_body.data);
             callback.call(here, jObj);
         });
     },
@@ -110,7 +110,7 @@ WeatherButton.prototype = {
     // and update weather status on Panel
     _getWeatherInfo: function(successCb, errorCb) {
         this._loadJSON(this._getWeatherUrl(), function(data) {
-            weatherinfo = data['data'];
+            let weatherinfo = data['data'];
             
             this._weatherInfo = weatherinfo;
             if (weatherinfo["error"]) {
