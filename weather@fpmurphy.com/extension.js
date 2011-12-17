@@ -110,6 +110,9 @@ WeatherButton.prototype = {
     // and update weather status on Panel
     _getWeatherInfo: function(successCb, errorCb) {
         this._loadJSON(this._getWeatherUrl(), function(data) {
+            if (data == null)
+                return;
+
             let weatherinfo = data['data'];
             
             this._weatherInfo = weatherinfo;
@@ -433,21 +436,25 @@ WeatherButton.prototype = {
 
 /* new API changes */
 let weatherApplet;
+let metadata;
 
-function enable(metadata) {
-    /* Do nothing for now */
+function enable() {
+    if (!weatherApplet) {
+        if (WEATHERDATA_KEY) {
+            global.log('enable');
+            weatherApplet = new WeatherButton(metadata);
+        } else {
+           global.log("ERROR: Weather extension. Missing WEATHERDATA_KEY or ZIPCODE.");
+        }
+    }
 }
 
 function disable() {
-    //weatherApplet.destroy();
+    weatherApplet.destroy();
+    weatherApplet = null;
 }
 /* /new API changes */
 
-function init(metadata) {
-    if (WEATHERDATA_KEY) {
-        weatherApplet = new WeatherButton(metadata);
-        global.log("meta data" + metadata);
-    } else {
-       global.log("ERROR: Weather extension. Missing WEATHERDATA_KEY or ZIPCODE.");
-    }
+function init(meta) {
+    metadata = meta;
 }
