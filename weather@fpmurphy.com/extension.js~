@@ -28,7 +28,7 @@ const WEATHERDATA_UPDATE_INTERVAL = 600;
 
 
 function WeatherButton() {
-    this._init.apply(this, arguments);
+    this._init.apply(this, arguments)d;
 }
 
 WeatherButton.prototype = {
@@ -210,10 +210,7 @@ WeatherButton.prototype = {
     },
 
     _displayContextMenu: function() {
-        if (threepointzero) {
-            return;
-        }
-
+        return;
         this._clearAll();
 
         this._preferencesItem = new PopupMenu.PopupSubMenuMenuItem(_("Preferences"), { style_class: 'preferences-submenu' });
@@ -221,7 +218,7 @@ WeatherButton.prototype = {
         
         this._refreshItem.connect('activate', Lang.bind(this, this._refreshWeather));
         
-        /* preferences */
+        /* preferences
         this._promptBox = new St.BoxLayout({ 
             style_class: 'weather-info-prompt-box',
             vertical: false
@@ -275,10 +272,27 @@ WeatherButton.prototype = {
         this._promptMenuItem.disconnect(this._promptMenuItem._activeChangeId);
         this._promptMenuItem.disconnect(this._promptMenuItem._sensitiveChangeId);
 
-        /* /preferences */
+         /preferences */
 
-        this.menu.addMenuItem(this._refreshItem);
-        this.menu.addMenuItem(this._preferencesItem);
+        let mainContextBox = new St.BoxLayout({ style_class: 'context-box'});
+        let topMenuBox = new St.BoxLayout({ style_class: 'top-context-box', vertical: true});
+        let bottomBox = new St.BoxLayout({ style_class: 'bottom-context-box'});
+
+        /* menu */
+        let menu = new PopupMenu.PopupMenu(this.actor, 1, St.Side.TOP);
+        menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Open Calendar")));
+        topMenuBox.add_actor(menu.actor);
+
+        /* /menu */
+
+        mainContextBox.add_actor(topMenuBox, { expand: false, x_fill: false });
+        mainContextBox.add_actor(bottomBox, { expand: false, x_fill: false });
+
+        this.menu.addActor(mainContextBox);
+        
+
+        //this.menu.addMenuItem(this._refreshItem);
+        //this.menu.addMenuItem(this._preferencesItem);
     },
 
     _refreshWeather: function() {
@@ -441,7 +455,6 @@ WeatherButton.prototype = {
 /* new API changes */
 let weatherApplet;
 let metadata;
-let threepointzero = false;
 
 function enable() {
     if (!weatherApplet) {
@@ -462,11 +475,4 @@ function disable() {
 
 function init(meta) {
     metadata = meta;
-}
-
-/* gnome-shell 3.0.2 compatibility */
-function main(meta) {
-    metadata = meta;
-    threepointzero = true;
-    enable();
 }

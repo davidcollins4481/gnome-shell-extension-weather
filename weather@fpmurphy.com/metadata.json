@@ -1,5 +1,5 @@
 { 
-   "shell-version": ["3.2.1"], 
+   "shell-version": ["3.0.2","3.2.1"], 
    "uuid": "weather@fpmurphy.com",
    "name": "Weather",
    "description": "Provide weather information",
